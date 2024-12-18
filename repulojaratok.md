@@ -88,7 +88,7 @@ weekly_data.head()
 
 # 6. Eredmények és vizualizáció
 ## 1. Heti adatok grafikus ábrázolása
-- A heti járatok száma és a 7 napos mozgóátlag
+**A heti járatok száma és a 7 napos mozgóátlag**
 ```python
 # Heti trendek ábrázolása a mozgóátlaggal
 plt.figure(figsize=(12, 6))
@@ -103,10 +103,52 @@ plt.show()
 ```
 ![Heti_repulojaratok_szama_es_mozgoatlag](https://github.com/user-attachments/assets/78266ca0-aef2-49ff-a7bd-140929b8ac7a)
 
-- 7 napos mozgóátlag trendek.
-- Összehasonlítás a 2019-es referenciaértékekkel.
-2. Elemzések:
-- Az adatok alapján megállapíthatók a csúcsidőszakok és visszaesések.
+A görbe egy évszakos mintázatot mutat:
+- Az év elején (1-10. hét körül) alacsony értékek vannak, majd a járatszámok meredeken növekednek a 20. hétig.
+- A csúcsérték a 25-30. hét között jelentkezik, ahol a járatok száma 600 ezer körüli.
+- Ezután az év végére egy fokozatos, majd meredek csökkenés következik be.
+
+**Százalékos eltérés a 2019-es referenciaévhez képest**
+```python
+# Százalékos eltérés ábrázolása
+plt.figure(figsize=(12, 6))
+plt.bar(weekly_data.index, weekly_data['% vs 2019'], color='orange', alpha=0.7)
+plt.axhline(0, color='red', linestyle='--', linewidth=1)
+plt.title('Százalékos eltérés a 2019-es évhez képest')
+plt.xlabel('Hét')
+plt.ylabel('Eltérés (%)')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+```
+![szazalekos_elteres_2019_2024](https://github.com/user-attachments/assets/fdfef78b-5109-42f0-aabe-60c4b47c7d59)
+
+- Az eltérések a legtöbb héten -2% és -6% között mozognak, azonban az év elején és végén nagyobb eltérések is láthatók:
+- Az 1-5. hét körül -10% alatti értékek vannak.
+- Az év végi hetekben szintén -8% körüli visszaesés tapasztalható.
+
+**NumPy-alapú vizualizáció: Százalékos eltérések eloszlása**
+```python
+# Százalékos eltérések NumPy használatával
+percent_differences = weekly_data['% vs 2019'].to_numpy()
+
+# Histogram ábrázolása
+plt.figure(figsize=(10, 6))
+plt.hist(percent_differences, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
+plt.axvline(np.mean(percent_differences), color='red', linestyle='--', label=f'Átlag: {np.mean(percent_differences):.2f}%')
+plt.title('Százalékos eltérések eloszlása (2019-hez képest)')
+plt.xlabel('Eltérés (%)')
+plt.ylabel('Hetek száma')
+plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+```
+![Elteresek_eloszlasa](https://github.com/user-attachments/assets/1c170aec-340b-4d7d-9117-a2dbd9881d08)
+
+Az ábrán egy hisztogram látható, amely a százalékos eltérések eloszlását mutatja:
+- A vörös szaggatott vonal jelzi az átlagos eltérést, amely -3.86% körül van.
+- A hisztogramon egyértelműen látszik, hogy minden hét negatív eltérést mutat, tehát 2024-ben eddig nem volt olyan hét, amikor a járatok száma meghaladta volna a 2019-es értékeket.
+- A legnagyobb negatív eltérések a -14% körül mozognak, míg a legkisebb eltérések közelítenek a 0%-hoz.
+
 
 # 7. Neurális háló a repülőjáratok trendjeinek előrejelzésére
 1. Adatok előkészítése:
