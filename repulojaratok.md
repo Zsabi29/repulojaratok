@@ -87,8 +87,20 @@ weekly_data.head()
 ```
 
 # 6. Eredmények és vizualizáció
-1. Grafikonok:
-- A repülőjáratok heti összesítése.
+## 1. Heti adatok grafikus ábrázolása
+- A heti járatok száma és a 7 napos mozgóátlag
+```python
+# Heti trendek ábrázolása a mozgóátlaggal
+plt.figure(figsize=(12, 6))
+plt.plot(weekly_data.index, weekly_data['Flights'], label='Flights (Weekly)', marker='o')
+plt.plot(weekly_data.index, weekly_data['7-day Moving Average'], label='7-day Moving Average', linestyle='--')
+plt.title('Heti repülőjáratok száma és mozgóátlaga')
+plt.xlabel('Hét')
+plt.ylabel('Járatok száma')
+plt.legend()
+plt.grid()
+plt.show()
+```
 - 7 napos mozgóátlag trendek.
 - Összehasonlítás a 2019-es referenciaértékekkel.
 2. Elemzések:
