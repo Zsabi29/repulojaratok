@@ -101,6 +101,8 @@ plt.legend()
 plt.grid()
 plt.show()
 ```
+![Heti_repulojaratok_szama_es_mozgoatlag](https://github.com/user-attachments/assets/78266ca0-aef2-49ff-a7bd-140929b8ac7a)
+
 - 7 napos mozgóátlag trendek.
 - Összehasonlítás a 2019-es referenciaértékekkel.
 2. Elemzések:
