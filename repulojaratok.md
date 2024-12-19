@@ -28,6 +28,8 @@ A cél a heti repülési adatok elemzése és vizualizációja az EU légiforgal
 ```python
 import pandas as pd  # Adatkezeléshez
 import matplotlib.pyplot as plt  # Vizualizációhoz
+import numpy as np # Vizualizációhoz
+import seaborn as sns # Vizualizációhoz
 ```
 
 # 5. Módszertan
@@ -148,6 +150,9 @@ Az ábrán egy hisztogram látható, amely a százalékos eltérések eloszlás�
 - A vörös szaggatott vonal jelzi az átlagos eltérést, amely -3.86% körül van.
 - A hisztogramon egyértelműen látszik, hogy minden hét negatív eltérést mutat, tehát 2024-ben eddig nem volt olyan hét, amikor a járatok száma meghaladta volna a 2019-es értékeket.
 - A legnagyobb negatív eltérések a -14% körül mozognak, míg a legkisebb eltérések közelítenek a 0%-hoz.
+
+**Szórás és eloszlás elemzése Boxplottal**
+
 
 
 # 7. Neurális háló a repülőjáratok trendjeinek előrejelzésére
