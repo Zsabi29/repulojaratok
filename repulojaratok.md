@@ -151,19 +151,152 @@ Az ábrán egy hisztogram látható, amely a százalékos eltérések eloszlás�
 - A hisztogramon egyértelműen látszik, hogy minden hét negatív eltérést mutat, tehát 2024-ben eddig nem volt olyan hét, amikor a járatok száma meghaladta volna a 2019-es értékeket.
 - A legnagyobb negatív eltérések a -14% körül mozognak, míg a legkisebb eltérések közelítenek a 0%-hoz.
 
-**Szórás és eloszlás elemzése Boxplottal**
-
-
 
 # 7. Neurális háló a repülőjáratok trendjeinek előrejelzésére
-1. Adatok előkészítése:
-- Az adatok normalizálása (pl. min-max scaling).
-- Az adatok szekvenciákra bontása (pl. 4 heti adatokból a következő hetet jósoljuk).
-2. Neurális hálózat modell felépítése:
-- Egyszerű Keras vagy TensorFlow alapú modell, pl. egy LSTM vagy Dense rétegekből álló hálózat.
-3. Tanítás és kiértékelés:
+
+## 1. Adatok előkészítése:
+**Az adatok normalizálása (pl. min-max scaling)**
+- A repülőjáratokkal kapcsolatos adatok jellemzően különböző skálán mozognak, például a járatszámok, az időbeli mozgóátlagok stb. A neurális hálók jobban teljesítenek, ha az inputadatok normalizálva vannak. Az egyik leggyakoribb normalizálási technika a min-max scaling, amely 0 és 1 közé skálázza az adatokat.
+
+**Az adatok szekvenciákra bontása**
+- A neurális háló trendek előrejelzéséhez múltbeli adatokat használ fel. Például a múlt 4 heti adatokból megpróbáljuk megjósolni az 5. heti járatszámokat. Ezért az adatokat szekvenciákra kell bontanunk egy sliding window módszerrel.
+
+Először normalizáljuk az adatokat, majd elkészítjük a szekvenciákat egy példában, amely az 'Flights' oszlopot használja. Így készítjük elő a neurális háló bemenetét:
+```python
+from sklearn.preprocessing import MinMaxScaler
+
+# Csak a releváns oszlop kiválasztása (pl. 'Flights')
+flight_data = data[['Flights']]
+
+# 1. Normalizálás (Min-Max Scaling)
+scaler = MinMaxScaler(feature_range=(0, 1))
+normalized_data = scaler.fit_transform(flight_data)
+
+# 2. Szekvenciák létrehozása
+def create_sequences(data, seq_length):
+    x, y = [], []
+    for i in range(len(data) - seq_length):
+        x.append(data[i:i + seq_length])
+        y.append(data[i + seq_length])
+    return np.array(x), np.array(y)
+
+# Szekvencia hossza (pl. 4 hét)
+sequence_length = 4
+x, y = create_sequences(normalized_data, sequence_length)
+
+# Kimenetek ellenőrzése
+print(f"X shape: {x.shape}")
+print(f"Y shape: {y.shape}")
+
+# Egy példa az X-ből és Y-ból
+print(f"Sample X: {x[0]}")
+print(f"Sample Y: {y[0]}")
+```
+**output:**
+```
+X shape: (14696, 4, 1)
+Y shape: (14696, 1)
+Sample X: [[0.0041445 ]
+ [0.00490059]
+ [0.00484458]
+ [0.00481658]]
+Sample Y: [0.00490059]
+```
+
+### 1. X shape: (14696, 4, 1):
+- Összesen 14,696 szekvencia készült.
+- Minden szekvencia 4 időpontból áll (4 hét).
+- Minden időpont egyetlen jellemzőt tartalmaz (a Flights értékét).
+
+### 2. Y shape: (14696, 1):
+- Minden szekvenciához tartozik egy előrejelzendő célérték.
+
+### 3. Példa szekvencia (X):
+- Ez az adott 4 hetes szekvencia normált értékekkel.
+- Az első szekvencia alapján a Y érték a következő hét normált értéke.
+
+## 2. Neurális hálózat modell felépítése:
+**Neurális háló modell: Egyszerű LSTM**
+- LSTM rétegeket használunk, mivel időalapú adatokat dolgozunk fel. A modell egy bemeneti, egy rejtett (LSTM), és egy kimeneti rétegből fog állni.
+```python
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+
+# Modell létrehozása
+model = Sequential([
+    LSTM(50, activation='relu', input_shape=(sequence_length, 1)),
+    Dense(1)  # Kimeneti réteg: egyetlen érték becslése
+])
+
+# Modell fordítása
+model.compile(optimizer='adam', loss='mean_squared_error')
+
+# Modell összegzése
+model.summary()
+
+# Adatok szétosztása tanítási és validációs halmazra
+split_index = int(0.8 * len(x))  # 80% tanítás, 20% validáció
+x_train, x_val = x[:split_index], x[split_index:]
+y_train, y_val = y[:split_index], y[split_index:]
+
+# Modell tanítása
+history = model.fit(
+    x_train, y_train,
+    validation_data=(x_val, y_val),
+    epochs=20,  # Iterációk száma
+    batch_size=32,  # Minta darabszám iterációnként
+    verbose=1
+)
+```
+### 1. Modell definiálása:
+- Az LSTM réteg megtanulja a trendeket és mintázatokat a szekvenciákból.
+- A kimeneti réteg (Dense) egyetlen számot becsül, ami az előrejelzett érték.
+
+### 2. Tanítási adatok megosztása:
+- Az adatok 80%-át tanítjuk, a maradék 20%-ot a validációra használjuk.
+
+### 3. Tanítás:
+- Az epochs=20 iterációs lépés során a modell többször frissíti a súlyokat.
+- A batch_size=32 biztosítja, hogy egyszerre 32 minta frissítse a súlyokat.
+
+**Output:**
+```
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)                         ┃ Output Shape                ┃         Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ lstm (LSTM)                          │ (None, 50)                  │          10,400 │
+├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
+│ dense (Dense)                        │ (None, 1)                   │              51 │
+└──────────────────────────────────────┴─────────────────────────────┴─────────────────┘
+ Total params: 10,451 (40.82 KB)
+ Trainable params: 10,451 (40.82 KB)
+ Non-trainable params: 0 (0.00 B)
+```
+### 1. Modell architektúra
+**LSTM réteg (50 neuron): Megtanulja a trendeket és mintázatokat az időalapú adatainkban.**
+- Paraméterek száma: 10,400 (ehhez tartoznak a bemeneti-kimeneti kapcsolatok és az LSTM belső állapotai).
+**Dense réteg (1 neuron): Egyetlen kimenetet ad, ami a következő hét előrejelzése.**
+- Paraméterek száma: 51.
+
+### 2. Tanítás és validáció
+**Tanulási folyamat (loss és val_loss):**
+- Az Epoch 1 során a loss: 0.00045747, és a validációs val_loss: 0.0023. Ez azt jelenti, hogy kezdetben a modell nagyobb hibával dolgozott.
+- Ahogy az epochok során haladunk, a validációs hiba (val_loss) folyamatosan csökken.
+
+**Végső eredmény (20. epoch):**
+- loss: 0.000017217 → A modell jól tanult az adatokból.
+- val_loss: 0.0011 → A validációs hiba is alacsony, ami azt jelzi, hogy a modell nem túltanult, és képes az adatok általánosítására.
+
+### 3. Mit jelent a "val_loss"?
+- A validációs hiba a valós (tesztadatokhoz közeli) adatokon mért hiba. Az alacsony érték azt mutatja, hogy a modell nemcsak a tanító adatokra fókuszál, hanem általánosítható is.
+
+
+## 3. Tanítás és kiértékelés:
 - A modellt betanítjuk az adatokra, majd validáljuk az eredményeket.
-4. Vizualizáció:
+
+## 4. Vizualizáció:
 - Az előrejelzések és a valós adatok összehasonlítása grafikonokon.
 
 # 8. Következtetések
