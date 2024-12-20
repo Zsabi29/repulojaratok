@@ -29,7 +29,6 @@ A cél a heti repülési adatok elemzése és vizualizációja az EU légiforgal
 import pandas as pd  # Adatkezeléshez
 import matplotlib.pyplot as plt  # Vizualizációhoz
 import numpy as np # Vizualizációhoz
-import seaborn as sns # Vizualizációhoz
 ```
 
 # 5. Módszertan
@@ -292,12 +291,16 @@ Model: "sequential"
 ### 3. Mit jelent a "val_loss"?
 - A validációs hiba a valós (tesztadatokhoz közeli) adatokon mért hiba. Az alacsony érték azt mutatja, hogy a modell nemcsak a tanító adatokra fókuszál, hanem általánosítható is.
 
+## 3. Vizualizáció:
+![Neuralis_halo_vizualizacioja](https://github.com/user-attachments/assets/a1c00662-77d8-4b35-aec0-e03e992da204)
+### 1. Előrejelzés pontossága:
+- Az előrejelzett értékek (narancssárga vonal) nagyon közel helyezkednek el a valós értékekhez (kék vonal), ami azt mutatja, hogy a modell jól megtanulta az adatok mintázatait.
+- Különösen az egyenletes trendeknél látható, hogy a modell szinte tökéletesen követi az adatokat.
 
-## 3. Tanítás és kiértékelés:
-- A modellt betanítjuk az adatokra, majd validáljuk az eredményeket.
+### 2. Esetleges eltérések:
+- A sűrűbb, komplexebb változásoknál, például az adatcsúcsoknál, van némi eltérés. Ez arra utal, hogy a modell nem minden esetben képes teljesen pontosan előrejelezni a hirtelen növekedéseket vagy eséseket.
 
-## 4. Vizualizáció:
-- Az előrejelzések és a valós adatok összehasonlítása grafikonokon.
+
 
 # 8. Következtetések
 - A repülési trendek elemzése rávilágít a csúcsidőszakokra és az iparág helyreállásának mértékére.
