@@ -158,7 +158,7 @@ Az ábrán egy hisztogram látható, amely a százalékos eltérések eloszlás�
 - A repülőjáratokkal kapcsolatos adatok jellemzően különböző skálán mozognak, például a járatszámok, az időbeli mozgóátlagok stb. A neurális hálók jobban teljesítenek, ha az inputadatok normalizálva vannak. Az egyik leggyakoribb normalizálási technika a min-max scaling, amely 0 és 1 közé skálázza az adatokat.
 
 **Az adatok szekvenciákra bontása**
-- A neurális háló trendek előrejelzéséhez múltbeli adatokat használ fel. Például a múlt 4 heti adatokból megpróbáljuk megjósolni az 5. heti járatszámokat. Ezért az adatokat szekvenciákra kell bontanunk egy sliding window módszerrel.
+- A neurális háló trendek előrejelzéséhez múltbeli adatokat használ fel. Például a múlt 4 heti adatokból megpróbáljuk megjósolni az 5. heti járatszámokat. Ezért az adatokat szekvenciákra kell bontanunk.
 
 Először normalizáljuk az adatokat, majd elkészítjük a szekvenciákat egy példában, amely az 'Flights' oszlopot használja. Így készítjük elő a neurális háló bemenetét:
 ```python
